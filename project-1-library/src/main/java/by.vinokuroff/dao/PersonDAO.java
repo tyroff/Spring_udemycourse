@@ -1,5 +1,8 @@
 package by.vinokuroff.dao;
 
+import by.vinokuroff.models.PersonMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import by.vinokuroff.models.Person;
 
@@ -9,97 +12,37 @@ import java.util.List;
 
 @Component
 public class PersonDAO {
-    private static int PEOPLE_COUNT;
 
-    private static final String URL = "jdbc:postgresql://localhost:5444/library";
-    private static final String USERNAME = "admin";
-    private static final String PASSWORD = "admin";
+    private final JdbcTemplate jdbcTemplate;
 
-    private static Connection connection;
-
-    static {
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+    @Autowired
+    public PersonDAO(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
-
     public List<Person> index() {
-        List<Person> people = new ArrayList<>();
-        try {
-            Statement statement = connection.createStatement();
-            String SQL = "SELECT * FROM person";
-            ResultSet resultSet = statement.executeQuery(SQL);
-            while (resultSet.next()) {
-                Person person = new Person();
-                person.setId(resultSet.getInt("id"));
-                person.setName(resultSet.getString("name"));
-                person.setYearBirth(resultSet.getInt("year_birth"));
-                people.add(person);
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return people;
+//        свой мапер можно не создавать, если наименование полей в таблице БД совподают с сеторами в маппере
+//        например(person.setName((resultSet.getString("name")));),
+//        тогда можно использовать BeanPropertyRowMapper<>(Person.class):
+//        return jdbcTemplate.query("SELECT * FROM Person", new BeanPropertyRowMapper<>(Person.class));
+        return jdbcTemplate.query("SELECT * FROM person", new PersonMapper());
     }
 
     public Person show(int id) {
-        Person person = null;
-        try {
-            PreparedStatement preparedStatement =
-                    connection.prepareStatement("SELECT * FROM person WHERE id=?");
-            preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            person = new Person();
-            person.setId(resultSet.getInt("id"));
-            person.setName(resultSet.getString("name"));
-            person.setYearBirth(resultSet.getInt("year_birth"));
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return person;
+        return jdbcTemplate.query("SELECT * FROM person WHERE id=?", new Object[]{id}, new PersonMapper())
+                .stream()
+                .findAny()
+                .orElse(null);
     }
 
     public void save(Person person) {
-        try {
-            PreparedStatement preparedStatement =
-                    connection.prepareStatement("INSERT INTO person(name, year_birth) VALUES(?, ?)");
-            preparedStatement.setString(1, person.getName());
-            preparedStatement.setInt(2, person.getYearBirth());
-            preparedStatement.executeUpdate();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        jdbcTemplate.update("INSERT INTO person(name, year_birth) VALUES (?, ?)", person.getName(), person.getYearBirth());
     }
 
-    public void update(int id, Person updatedPerson) {
-        try {
-            PreparedStatement preparedStatement =
-                    connection.prepareStatement("UPDATE person SET name=?, year_birth=? WHERE id=?");
-            preparedStatement.setString(1, updatedPerson.getName());
-                preparedStatement.setInt(2, updatedPerson.getYearBirth());
-            preparedStatement.setInt(3, id);
-            preparedStatement.executeUpdate();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+    public void update(int id, Person person) {
+        jdbcTemplate.update("UPDATE person SET name=?, year_birth=? WHERE id=?", person.getName(), person.getYearBirth(), id);
     }
 
     public void delete(int id) {
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = connection.prepareStatement("DELETE FROM person WHERE id=?");
-            preparedStatement.setInt(1, id);
-            preparedStatement.executeUpdate();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        jdbcTemplate.update("DELETE FROM person WHERE id=?", id);
     }
 }
