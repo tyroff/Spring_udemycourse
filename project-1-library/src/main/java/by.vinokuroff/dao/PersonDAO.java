@@ -9,6 +9,7 @@ import by.vinokuroff.models.Person;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class PersonDAO {
@@ -44,5 +45,9 @@ public class PersonDAO {
 
     public void delete(int id) {
         jdbcTemplate.update("DELETE FROM person WHERE id=?", id);
+    }
+
+    public Optional<Person> getPersonByName(String name) {
+        return jdbcTemplate.query("SELECT * FROM person WHERE name=?", new Object[]{name}, new PersonMapper()).stream().findAny();
     }
 }
