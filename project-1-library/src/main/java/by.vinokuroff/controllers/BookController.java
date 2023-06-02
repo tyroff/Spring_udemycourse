@@ -1,6 +1,7 @@
 package by.vinokuroff.controllers;
 
 import by.vinokuroff.dao.BookDAO;
+import by.vinokuroff.models.Book;
 import by.vinokuroff.models.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,42 +34,38 @@ public class BookController {
         return "book/show";
     }
 
-    //TODO: to refactoring is continue for Book
-
     @GetMapping("/new")
-    public String newPerson(@ModelAttribute("person") Person person) {
-        return "people/new";
+    public String newBook(@ModelAttribute("book") Book book) {
+        return "book/new";
     }
 
     @PostMapping()
-    public String create(@ModelAttribute("person") @Valid Person person,
-                         BindingResult bindingResult) {
-        if (bindingResult.hasErrors())
-            return "people/new";
-
-        personDAO.save(person);
-        return "redirect:/people";
+    public String create(@ModelAttribute("book") Book book, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            return "book/new";
+        }
+        bookDAO.save(book);
+        return "redirect:/book";
     }
 
     @GetMapping("/{id}/edit")
     public String edit(Model model, @PathVariable("id") int id) {
-        model.addAttribute("person", personDAO.show(id));
-        return "people/edit";
+        model.addAttribute("book", bookDAO.show(id));
+        return "book/edit";
     }
 
     @PatchMapping("/{id}")
-    public String update(@ModelAttribute("person") @Valid Person person, BindingResult bindingResult,
-                         @PathVariable("id") int id) {
-        if (bindingResult.hasErrors())
-            return "people/edit";
-
-        personDAO.update(id, person);
-        return "redirect:/people";
+    public String update(@ModelAttribute("book") Book book, BindingResult bindingResult, @PathVariable("id") int id) {
+        if(bindingResult.hasErrors()) {
+            return "book/edit";
+        }
+        bookDAO.update(id, book);
+        return "redirect:/book";
     }
 
     @DeleteMapping("/{id}")
     public String delete(@PathVariable("id") int id) {
-        personDAO.delete(id);
-        return "redirect:/people";
+        bookDAO.delete(id);
+        return "redirect:/book";
     }
 }
