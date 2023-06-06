@@ -1,13 +1,13 @@
 package by.vinokuroff.dao;
 
+import by.vinokuroff.models.Book;
+import by.vinokuroff.models.BookMapper;
+import by.vinokuroff.models.Person;
 import by.vinokuroff.models.PersonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import by.vinokuroff.models.Person;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,5 +49,9 @@ public class PersonDAO {
 
     public Optional<Person> getPersonByName(String name) {
         return jdbcTemplate.query("SELECT * FROM person WHERE name=?", new Object[]{name}, new PersonMapper()).stream().findAny();
+    }
+
+    public List<Book> getBooksPerson(int idPerson) {
+        return jdbcTemplate.query("SELECT * FROM book WHERE person_id=?", new Object[]{idPerson}, new BookMapper());
     }
 }
