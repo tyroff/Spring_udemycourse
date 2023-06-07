@@ -2,14 +2,11 @@ package by.vinokuroff.controllers;
 
 import by.vinokuroff.dao.BookDAO;
 import by.vinokuroff.models.Book;
-import by.vinokuroff.models.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/book")
@@ -31,6 +28,7 @@ public class BookController {
     @GetMapping("/{id}")
     public String show(@PathVariable("id") int id, Model model) {
         model.addAttribute("book", bookDAO.show(id));
+        model.addAttribute("person", bookDAO.getPersonWithBook(id));
         return "book/show";
     }
 

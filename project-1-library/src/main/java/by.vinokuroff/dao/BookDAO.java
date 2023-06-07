@@ -51,4 +51,10 @@ public class BookDAO {
     public Optional<Book> getBookByName(String name) {
         return jdbcTemplate.query("SELECT * FROM book WHERE name=?", new Object[]{name}, new BookMapper()).stream().findAny();
     }
+
+
+    public Person getPersonWithBook(int id) {
+        return jdbcTemplate.query("SELECT * FROM person WHERE id=(SELECT person_id FROM book where id=?)",
+                new Object[]{id}, new PersonMapper()).stream().findAny().orElse(null);
+    }
 }
