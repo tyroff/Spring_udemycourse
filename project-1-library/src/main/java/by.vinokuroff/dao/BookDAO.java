@@ -48,13 +48,16 @@ public class BookDAO {
         jdbcTemplate.update("DELETE FROM book WHERE id=?", id);
     }
 
-    public Optional<Book> getBookByName(String name) {
-        return jdbcTemplate.query("SELECT * FROM book WHERE name=?", new Object[]{name}, new BookMapper()).stream().findAny();
+    public Optional<Person> getPersonWithBook(int id) {
+        return jdbcTemplate.query("SELECT * FROM person WHERE id=(SELECT person_id FROM book where id=?)",
+                new Object[]{id}, new PersonMapper()).stream().findAny();
     }
 
+    public void release(int id) {
+        jdbcTemplate.update("UPDATE book SET person_id=NULL WHERE id=?", id);
+    }
 
-    public Person getPersonWithBook(int id) {
-        return jdbcTemplate.query("SELECT * FROM person WHERE id=(SELECT person_id FROM book where id=?)",
-                new Object[]{id}, new PersonMapper()).stream().findAny().orElse(null);
+    public void assign(int idBook, Person personSelected) {
+        jdbcTemplate.update("UPDATE book SET person_id=? WHERE id=?", personSelected.getId(),idBook);
     }
 }

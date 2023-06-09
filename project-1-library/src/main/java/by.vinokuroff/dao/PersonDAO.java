@@ -51,7 +51,7 @@ public class PersonDAO {
         return jdbcTemplate.query("SELECT * FROM person WHERE name=?", new Object[]{name}, new PersonMapper()).stream().findAny();
     }
 
-    public List<Book> getBooksPerson(int idPerson) {
+    public List<Book> getBooksByPersonId(int idPerson) {
         return jdbcTemplate.query("SELECT * FROM book WHERE person_id=?", new Object[]{idPerson}, new BookMapper());
     }
 }

@@ -14,6 +14,7 @@
             <input type="text" th:field="*{yearBirth}" id="yearBirth"/>
             <div style="color:red" th:if="${#fields.hasErrors('yearBirth')}" th:errors="*{yearBirth}">Year of birth Error</div>
             <br/>
+            <input type="submit" value="Обновить!"/>
         </form>
     </body>
 </html>
