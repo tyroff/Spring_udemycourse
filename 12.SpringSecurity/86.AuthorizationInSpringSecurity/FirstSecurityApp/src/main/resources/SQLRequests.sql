@@ -8,3 +8,5 @@ create table Person(
 insert into person(username, year_of_birth, password)  values
     ('test_user_1', 1999, 'test_password'),
     ('test_user_2', 1999, 'test_password');
+
+alter table person add column role varchar(100) not null;

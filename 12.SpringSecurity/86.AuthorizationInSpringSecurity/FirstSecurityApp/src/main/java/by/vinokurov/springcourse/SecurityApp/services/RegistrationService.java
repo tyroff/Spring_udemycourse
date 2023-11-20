@@ -21,6 +21,7 @@ public class RegistrationService {
     public void registration(Person person) {
         String encodedPassword = passwordEncoder.encode(person.getPassword());
         person.setPassword(encodedPassword);
+        person.setRole("ROLE_USER"); //для Spring название роли должно начинаться с "ROLE_"
         peopleRepository.save(person);
     }
 }
