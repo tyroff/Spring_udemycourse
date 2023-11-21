@@ -4,6 +4,7 @@ import by.vinokurov.springcourse.SecurityApp.services.PersonDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity// Spring понимает что это конфигурация security.
+ @EnableGlobalMethodSecurity(prePostEnabled = true)// это нужно для того что бы можно было аграничивать доступ РОЛИ к использованию метода аннотацией @PreAuthorize
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final PersonDetailsService personDetailsService;
@@ -24,7 +26,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //конфигурируем сам Spring Security
         //конфигурируем авторизацию
         http.authorizeRequests()
-                .antMatchers("/admin").hasRole("ADMIN")
                 .antMatchers("/auth/login", "/auth/registration", "/error").permitAll()
                 .anyRequest().hasAnyRole("USER", "ADMIN")
                 .and()
