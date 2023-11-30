@@ -3,11 +3,15 @@ package by.vinokurov.FirstRestApp.controllers;
 import by.vinokurov.FirstRestApp.models.Person;
 import by.vinokurov.FirstRestApp.services.PeopleService;
 import by.vinokurov.FirstRestApp.util.PersonErrorResponse;
+import by.vinokurov.FirstRestApp.util.PersonNotCreatedException;
 import by.vinokurov.FirstRestApp.util.PersonNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +37,26 @@ public class PeopleController {
         return peopleService.findOne(id);//Jackson конвектирует объект в JSON
     }
 
+    @PostMapping
+    public ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            StringBuilder errorMessage = new StringBuilder();
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            for (FieldError error : errors) {
+                errorMessage.append(error.getField())
+                        .append(" - ")
+                        .append(error.getDefaultMessage())
+                        .append(";\n");
+            }
+
+            throw new PersonNotCreatedException(errorMessage.toString());
+        }
+
+        peopleService.save(person);
+
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
     @ExceptionHandler
     private ResponseEntity<PersonErrorResponse> handleException(PersonNotFoundException e) {
         PersonErrorResponse response = new PersonErrorResponse(
@@ -41,5 +65,15 @@ public class PeopleController {
         );
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // NOT_FOUND - 404 статус
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<PersonErrorResponse> handleException(PersonNotCreatedException e) {
+        PersonErrorResponse response = new PersonErrorResponse(
+                e.getMessage(),
+                System.currentTimeMillis()
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }
