@@ -10,3 +10,7 @@ insert into person(name, age, email)  values
     ('test_user_2', 2000, 'test@email.xz');
 
 alter table person add column role varchar(100) not null;
+
+alter table person add column create_at timestamp;
+alter table person add column update_at timestamp;
+alter table person add column created_who varchar;
